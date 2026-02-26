@@ -1,0 +1,15 @@
+{
+  "id": "fs-read-config",
+  "description": "Read a configuration file",
+  "userMessage": "Read the contents of config.yaml",
+  "toolGroup": "group:fs",
+  "allowedToolNames": ["read"],
+  "expectedArgsSchema": {
+    "type": "object",
+    "required": ["path"],
+    "properties": {
+      "path": { "type": "string" }
+    }
+  },
+  "mustNotCallTools": ["exec", "write", "edit"]
+}

@@ -391,33 +391,64 @@ function buildChannelManagementSchema() {
   };
 }
 
-function buildMessageToolSchemaProps(options: {
+type SchemaSelectionOptions = {
   includeButtons: boolean;
   includeCards: boolean;
   includeComponents: boolean;
-}) {
-  return {
+  includePoll?: boolean;
+  includeModeration?: boolean;
+  includeEvent?: boolean;
+  includeSticker?: boolean;
+  includePresence?: boolean;
+  includeChannelManagement?: boolean;
+};
+
+function buildMessageToolSchemaProps(options: SchemaSelectionOptions) {
+  const props: Record<string, unknown> = {
     ...buildRoutingSchema(),
     ...buildSendSchema(options),
     ...buildReactionSchema(),
     ...buildFetchSchema(),
-    ...buildPollSchema(),
     ...buildChannelTargetSchema(),
-    ...buildStickerSchema(),
     ...buildThreadSchema(),
-    ...buildEventSchema(),
-    ...buildModerationSchema(),
     ...buildGatewaySchema(),
-    ...buildChannelManagementSchema(),
-    ...buildPresenceSchema(),
   };
+  if (options.includePoll !== false) {
+    Object.assign(props, buildPollSchema());
+  }
+  if (options.includeSticker !== false) {
+    Object.assign(props, buildStickerSchema());
+  }
+  if (options.includeEvent !== false) {
+    Object.assign(props, buildEventSchema());
+  }
+  if (options.includeModeration !== false) {
+    Object.assign(props, buildModerationSchema());
+  }
+  if (options.includeChannelManagement !== false) {
+    Object.assign(props, buildChannelManagementSchema());
+  }
+  if (options.includePresence !== false) {
+    Object.assign(props, buildPresenceSchema());
+  }
+  return props;
 }
 
 function buildMessageToolSchemaFromActions(
   actions: readonly string[],
-  options: { includeButtons: boolean; includeCards: boolean; includeComponents: boolean },
+  options: SchemaSelectionOptions,
 ) {
-  const props = buildMessageToolSchemaProps(options);
+  const actionSet = new Set(actions);
+  const refined: SchemaSelectionOptions = {
+    ...options,
+    includePoll: options.includePoll !== false && actionSet.has("poll"),
+    includeModeration: options.includeModeration !== false && (actionSet.has("ban") || actionSet.has("kick") || actionSet.has("mute") || actionSet.has("timeout") || actionSet.has("purge")),
+    includeEvent: options.includeEvent !== false && actionSet.has("createEvent"),
+    includeSticker: options.includeSticker !== false && (actionSet.has("sendSticker") || actionSet.has("send")),
+    includePresence: options.includePresence !== false && actionSet.has("setPresence"),
+    includeChannelManagement: options.includeChannelManagement !== false && (actionSet.has("createChannel") || actionSet.has("editChannel") || actionSet.has("deleteChannel")),
+  };
+  const props = buildMessageToolSchemaProps(refined);
   return Type.Object({
     action: stringEnum(actions),
     ...props,

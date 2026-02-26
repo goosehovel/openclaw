@@ -1,0 +1,15 @@
+{
+  "id": "web-search",
+  "description": "Search the web for information",
+  "userMessage": "Search the web for the latest TypeScript release notes",
+  "toolGroup": "group:web",
+  "allowedToolNames": ["web_search"],
+  "expectedArgsSchema": {
+    "type": "object",
+    "required": ["query"],
+    "properties": {
+      "query": { "type": "string" }
+    }
+  },
+  "mustNotCallTools": ["exec", "read"]
+}

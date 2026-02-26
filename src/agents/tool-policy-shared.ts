@@ -1,8 +1,10 @@
 import {
   CORE_TOOL_GROUPS,
   resolveCoreToolProfilePolicy,
+  resolveNamedToolProfilePolicy,
   type ToolProfileId,
 } from "./tool-catalog.js";
+import type { NamedToolProfile } from "../config/types.tools.js";
 
 type ToolProfilePolicy = {
   allow?: string[];
@@ -42,8 +44,19 @@ export function expandToolGroups(list?: string[]) {
   return Array.from(new Set(expanded));
 }
 
-export function resolveToolProfilePolicy(profile?: string): ToolProfilePolicy | undefined {
-  return resolveCoreToolProfilePolicy(profile);
+export function resolveToolProfilePolicy(
+  profile?: string,
+  namedProfiles?: Record<string, NamedToolProfile>,
+): ToolProfilePolicy | undefined {
+  const coreResult = resolveCoreToolProfilePolicy(profile);
+  if (coreResult) return coreResult;
+
+  if (profile && namedProfiles) {
+    const namedResult = resolveNamedToolProfilePolicy(profile, namedProfiles);
+    if (namedResult) return namedResult.policy;
+  }
+
+  return undefined;
 }
 
 export type { ToolProfileId };

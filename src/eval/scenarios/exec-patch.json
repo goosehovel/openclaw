@@ -1,0 +1,11 @@
+{
+  "id": "exec-apply-patch",
+  "description": "Apply a multi-file patch",
+  "userMessage": "Apply this patch to rename function foo to bar across all files",
+  "toolGroup": "group:runtime",
+  "allowedToolNames": ["apply_patch", "edit", "exec"],
+  "expectedArgsSchema": {
+    "type": "object",
+    "properties": {}
+  }
+}

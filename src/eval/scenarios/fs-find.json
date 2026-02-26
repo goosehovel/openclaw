@@ -1,0 +1,14 @@
+{
+  "id": "fs-find-glob",
+  "description": "Find files matching a glob pattern",
+  "userMessage": "Find all TypeScript test files in the project",
+  "toolGroup": "group:fs",
+  "allowedToolNames": ["find"],
+  "expectedArgsSchema": {
+    "type": "object",
+    "required": ["glob"],
+    "properties": {
+      "glob": { "type": "string" }
+    }
+  }
+}

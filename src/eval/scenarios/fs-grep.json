@@ -1,0 +1,14 @@
+{
+  "id": "fs-grep-pattern",
+  "description": "Search for a pattern across files",
+  "userMessage": "Find all TODO comments in the src directory",
+  "toolGroup": "group:fs",
+  "allowedToolNames": ["grep"],
+  "expectedArgsSchema": {
+    "type": "object",
+    "required": ["pattern"],
+    "properties": {
+      "pattern": { "type": "string" }
+    }
+  }
+}

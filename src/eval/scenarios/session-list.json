@@ -1,0 +1,12 @@
+{
+  "id": "session-list",
+  "description": "List active sessions",
+  "userMessage": "Show me all active sessions",
+  "toolGroup": "group:sessions",
+  "allowedToolNames": ["sessions_list"],
+  "expectedArgsSchema": {
+    "type": "object",
+    "properties": {}
+  },
+  "mustNotCallTools": ["exec", "message"]
+}

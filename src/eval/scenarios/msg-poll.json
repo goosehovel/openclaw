@@ -1,0 +1,16 @@
+{
+  "id": "msg-poll",
+  "description": "Create a poll in the chat",
+  "userMessage": "Create a poll asking what programming language people prefer with options TypeScript, Python, Rust",
+  "toolGroup": "group:messaging",
+  "allowedToolNames": ["message"],
+  "expectedArgsSchema": {
+    "type": "object",
+    "required": ["action"],
+    "properties": {
+      "action": { "type": "string", "const": "poll" },
+      "pollQuestion": { "type": "string" }
+    }
+  },
+  "mustNotCallTools": ["exec"]
+}

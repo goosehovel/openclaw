@@ -1,0 +1,14 @@
+{
+  "id": "subagent-spawn",
+  "description": "Spawn a sub-agent for a complex task",
+  "userMessage": "Spawn a sub-agent to refactor the auth module while I continue here",
+  "toolGroup": "group:openclaw",
+  "allowedToolNames": ["subagents"],
+  "expectedArgsSchema": {
+    "type": "object",
+    "properties": {
+      "action": { "type": "string" }
+    }
+  },
+  "mustNotCallTools": ["exec"]
+}

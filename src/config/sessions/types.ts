@@ -57,6 +57,10 @@ export type SessionEntry = {
   authProfileOverride?: string;
   authProfileOverrideSource?: "auto" | "user";
   authProfileOverrideCompactionCount?: number;
+  toolsProfileOverride?: string;
+  toolsAllowOverride?: string[];
+  toolsDenyOverride?: string[];
+  toolsPromptListingOverride?: "full" | "names" | "off";
   groupActivation?: "mention" | "always";
   groupActivationNeedsSystemIntro?: boolean;
   sendPolicy?: "allow" | "deny";

@@ -1,0 +1,15 @@
+{
+  "id": "msg-react",
+  "description": "React to a message with an emoji",
+  "userMessage": "React to the last message with a thumbs up",
+  "toolGroup": "group:messaging",
+  "allowedToolNames": ["message"],
+  "expectedArgsSchema": {
+    "type": "object",
+    "required": ["action"],
+    "properties": {
+      "action": { "type": "string", "const": "react" }
+    }
+  },
+  "mustNotCallTools": ["exec"]
+}

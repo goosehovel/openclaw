@@ -67,6 +67,10 @@ export function applyToolPolicyPipeline(params: {
   toolMeta: (tool: AnyAgentTool) => { pluginId: string } | undefined;
   warn: (message: string) => void;
   steps: ToolPolicyPipelineStep[];
+  namedProfileContext?: {
+    profileName: string;
+    headlineTools?: string[];
+  };
 }): AnyAgentTool[] {
   const coreToolNames = new Set(
     params.tools
@@ -104,5 +108,28 @@ export function applyToolPolicyPipeline(params: {
     const expanded = expandPolicyWithPluginGroups(policy, pluginGroups);
     filtered = expanded ? filterToolsByPolicy(filtered, expanded) : filtered;
   }
+
+  // Post-pipeline runtime warning for effectively-empty profiles
+  if (params.namedProfileContext) {
+    const ctx = params.namedProfileContext;
+    const remaining = new Set(filtered.map((t) => normalizeToolName(t.name)));
+    const headline = ctx.headlineTools ?? [];
+    if (filtered.length === 0) {
+      params.warn(
+        `Named profile "${ctx.profileName}" resulted in zero tools after policy filtering.`,
+      );
+    } else if (filtered.length === 1 && remaining.has("session_status")) {
+      params.warn(
+        `Named profile "${ctx.profileName}" resulted in only session_status after policy filtering.`,
+      );
+    } else if (headline.length > 0 && headline.every((t) => !remaining.has(normalizeToolName(t)))) {
+      const removedList = headline.join(", ");
+      const remainingList = filtered.map((t) => t.name).join(", ");
+      params.warn(
+        `Named profile "${ctx.profileName}" requested headline tools [${removedList}], but none remain after filtering. Effective tools: ${remainingList}.`,
+      );
+    }
+  }
+
   return filtered;
 }

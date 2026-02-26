@@ -1,0 +1,15 @@
+{
+  "id": "web-fetch",
+  "description": "Fetch content from a URL",
+  "userMessage": "Fetch the content from https://example.com and summarize it",
+  "toolGroup": "group:web",
+  "allowedToolNames": ["web_fetch"],
+  "expectedArgsSchema": {
+    "type": "object",
+    "required": ["url"],
+    "properties": {
+      "url": { "type": "string" }
+    }
+  },
+  "mustNotCallTools": ["exec"]
+}

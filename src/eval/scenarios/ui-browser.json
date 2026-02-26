@@ -1,0 +1,14 @@
+{
+  "id": "ui-browser-navigate",
+  "description": "Navigate the browser to a URL",
+  "userMessage": "Open https://docs.openclaw.ai in the browser",
+  "toolGroup": "group:ui",
+  "allowedToolNames": ["browser"],
+  "expectedArgsSchema": {
+    "type": "object",
+    "properties": {
+      "action": { "type": "string" }
+    }
+  },
+  "mustNotCallTools": ["exec", "web_fetch"]
+}

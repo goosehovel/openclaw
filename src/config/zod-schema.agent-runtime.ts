@@ -329,6 +329,58 @@ export const ToolProfileSchema = z
   .union([z.literal("minimal"), z.literal("coding"), z.literal("messaging"), z.literal("full")])
   .optional();
 
+export const PromptListingModeSchema = z
+  .union([z.literal("full"), z.literal("names"), z.literal("off")])
+  .optional();
+
+const MAX_NAMED_PROFILE_EXTENDS_DEPTH = 5;
+
+const NamedToolProfileSchema = z
+  .object({
+    extends: z.string().optional(),
+    allow: z.array(z.string()).optional(),
+    deny: z.array(z.string()).optional(),
+    headlineTools: z.array(z.string()).optional(),
+  })
+  .strict();
+
+export const NamedToolProfilesSchema = z
+  .record(z.string(), NamedToolProfileSchema)
+  .optional()
+  .superRefine((profiles, ctx) => {
+    if (!profiles) return;
+    for (const [name, profile] of Object.entries(profiles)) {
+      if (!profile.extends) continue;
+      const visited = new Set<string>();
+      visited.add(name);
+      let current = profile.extends;
+      let depth = 0;
+      while (current) {
+        depth++;
+        if (visited.has(current)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Named profile cycle detected: ${[...visited, current].join(" -> ")}`,
+            path: [name, "extends"],
+          });
+          break;
+        }
+        if (depth > MAX_NAMED_PROFILE_EXTENDS_DEPTH) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Named profile extends chain exceeds max depth (${MAX_NAMED_PROFILE_EXTENDS_DEPTH}): ${[...visited, current].join(" -> ")}`,
+            path: [name, "extends"],
+          });
+          break;
+        }
+        visited.add(current);
+        const parent = profiles[current];
+        current = parent?.extends ?? "";
+        if (!current) break;
+      }
+    }
+  });
+
 type AllowlistPolicy = {
   allow?: string[];
   alsoAllow?: string[];
@@ -709,6 +761,8 @@ export const AgentEntrySchema = z
 export const ToolsSchema = z
   .object({
     ...CommonToolPolicyFields,
+    namedProfiles: NamedToolProfilesSchema,
+    promptListing: PromptListingModeSchema,
     web: ToolsWebSchema,
     media: ToolsMediaSchema,
     links: ToolsLinksSchema,

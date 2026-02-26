@@ -301,6 +301,87 @@ export function resolveCoreToolProfilePolicy(profile?: string): ToolProfilePolic
   };
 }
 
+export type ResolvedProfileTrace = {
+  resolvedFrom: string[];
+  effectiveAllow: string[];
+  effectiveDeny: string[];
+};
+
+type NamedProfileInput = {
+  extends?: string;
+  allow?: string[];
+  deny?: string[];
+};
+
+const MAX_EXTENDS_DEPTH = 5;
+
+/**
+ * Resolve a named profile through its extends chain, merging allow/deny at each level.
+ * Deny wins: at each level, deny entries are applied as filters after allow merge.
+ */
+export function resolveNamedToolProfilePolicy(
+  profileName: string,
+  namedProfiles: Record<string, NamedProfileInput>,
+): { policy: ToolProfilePolicy; trace: ResolvedProfileTrace } | undefined {
+  const profile = namedProfiles[profileName];
+  if (!profile) {
+    return undefined;
+  }
+
+  const chain: string[] = [profileName];
+  const visited = new Set<string>([profileName]);
+  let current: NamedProfileInput | undefined = profile;
+
+  const allAllow: string[] = [];
+  const allDeny: string[] = [];
+
+  while (current) {
+    if (current.allow) allAllow.push(...current.allow);
+    if (current.deny) allDeny.push(...current.deny);
+
+    const parentName = current.extends;
+    if (!parentName) break;
+
+    if (visited.has(parentName)) break;
+    if (chain.length >= MAX_EXTENDS_DEPTH) break;
+
+    visited.add(parentName);
+    chain.push(parentName);
+
+    const builtIn = CORE_TOOL_PROFILES[parentName as ToolProfileId];
+    if (builtIn) {
+      if (builtIn.allow) allAllow.push(...builtIn.allow);
+      if (builtIn.deny) allDeny.push(...builtIn.deny);
+      break;
+    }
+
+    current = namedProfiles[parentName];
+  }
+
+  const denySet = new Set(allDeny);
+  const effectiveAllow = allAllow.length > 0
+    ? [...new Set(allAllow)].filter((t) => !denySet.has(t))
+    : [];
+  const effectiveDeny = [...new Set(allDeny)];
+
+  const policy: ToolProfilePolicy = {};
+  if (effectiveAllow.length > 0) policy.allow = effectiveAllow;
+  if (effectiveDeny.length > 0) policy.deny = effectiveDeny;
+
+  if (!policy.allow && !policy.deny) {
+    return undefined;
+  }
+
+  return {
+    policy,
+    trace: {
+      resolvedFrom: chain,
+      effectiveAllow,
+      effectiveDeny,
+    },
+  };
+}
+
 export function listCoreToolSections(): CoreToolSection[] {
   return CORE_TOOL_SECTION_ORDER.map((section) => ({
     id: section.id,

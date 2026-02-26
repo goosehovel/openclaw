@@ -1,0 +1,13 @@
+{
+  "id": "ui-canvas-present",
+  "description": "Present content in the canvas",
+  "userMessage": "Show a React component preview in the canvas",
+  "toolGroup": "group:ui",
+  "allowedToolNames": ["canvas"],
+  "expectedArgsSchema": {
+    "type": "object",
+    "properties": {
+      "action": { "type": "string" }
+    }
+  }
+}

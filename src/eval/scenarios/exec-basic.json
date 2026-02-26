@@ -1,0 +1,15 @@
+{
+  "id": "exec-basic-command",
+  "description": "Run a simple shell command",
+  "userMessage": "Run git status in the current directory",
+  "toolGroup": "group:runtime",
+  "allowedToolNames": ["exec"],
+  "expectedArgsSchema": {
+    "type": "object",
+    "required": ["command"],
+    "properties": {
+      "command": { "type": "string" }
+    }
+  },
+  "mustNotCallTools": ["read", "write"]
+}

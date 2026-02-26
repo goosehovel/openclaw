@@ -1038,6 +1038,57 @@ export function collectMinimalProfileOverrideFindings(cfg: OpenClawConfig): Secu
   return findings;
 }
 
+export function collectNamedProfileAuditFindings(cfg: OpenClawConfig): SecurityAuditFinding[] {
+  const findings: SecurityAuditFinding[] = [];
+  const namedProfiles = cfg.tools?.namedProfiles;
+  if (!namedProfiles) return findings;
+
+  const minimalBuiltIns = new Set(["minimal"]);
+
+  for (const [name, profile] of Object.entries(namedProfiles)) {
+    if (!profile.extends) continue;
+    // Named profiles extending non-minimal bases get a broader toolset
+    if (!minimalBuiltIns.has(profile.extends) && !namedProfiles[profile.extends]) {
+      findings.push({
+        checkId: "tools.namedProfiles_extends_unknown",
+        severity: "warn",
+        title: `Named profile "${name}" extends unknown profile "${profile.extends}"`,
+        detail:
+          `tools.namedProfiles.${name}.extends references "${profile.extends}" which is neither a ` +
+          "built-in profile (minimal, coding, messaging, full) nor another named profile.",
+        remediation:
+          `Fix the extends value to reference a valid built-in or named profile.`,
+      });
+    }
+  }
+
+  // Warn when global profile=minimal but named profiles extend broader bases
+  if (cfg.tools?.profile === "minimal") {
+    const broaderProfiles = Object.entries(namedProfiles)
+      .filter(([, p]) => {
+        const ext = p.extends;
+        return ext && ext !== "minimal" && !namedProfiles[ext];
+      })
+      .map(([name, p]) => `${name} (extends ${p.extends})`);
+
+    if (broaderProfiles.length > 0) {
+      findings.push({
+        checkId: "tools.namedProfiles_broader_than_minimal",
+        severity: "info",
+        title: "Named profiles extend beyond minimal while global profile is minimal",
+        detail:
+          "Global tools.profile=minimal, but these named profiles extend broader bases:\n" +
+          broaderProfiles.map((p) => `- ${p}`).join("\n"),
+        remediation:
+          "Named profiles can only narrow the toolset when selected. " +
+          "Verify these profiles are intentional.",
+      });
+    }
+  }
+
+  return findings;
+}
+
 export function collectModelHygieneFindings(cfg: OpenClawConfig): SecurityAuditFinding[] {
   const findings: SecurityAuditFinding[] = [];
   const models = collectModels(cfg);

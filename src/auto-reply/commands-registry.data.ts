@@ -502,6 +502,13 @@ function buildChatCommands(): ChatCommandDefinition[] {
       category: "session",
     }),
     defineChatCommand({
+      key: "tools-reset",
+      description: "Reset session tool overrides to config baseline.",
+      textAlias: "/tools:reset",
+      scope: "text",
+      category: "tools",
+    }),
+    defineChatCommand({
       key: "new",
       nativeName: "new",
       description: "Start a new session.",

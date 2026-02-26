@@ -1,0 +1,16 @@
+{
+  "id": "msg-send-text",
+  "description": "Send a simple text message",
+  "userMessage": "Send a message to John saying hello",
+  "toolGroup": "group:messaging",
+  "allowedToolNames": ["message"],
+  "expectedArgsSchema": {
+    "type": "object",
+    "required": ["action"],
+    "properties": {
+      "action": { "type": "string", "const": "send" },
+      "message": { "type": "string" }
+    }
+  },
+  "mustNotCallTools": ["exec"]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "fs-write-new-file",
+  "description": "Create a new file with content",
+  "userMessage": "Create a file called hello.txt with the text Hello World",
+  "toolGroup": "group:fs",
+  "allowedToolNames": ["write"],
+  "expectedArgsSchema": {
+    "type": "object",
+    "required": ["path", "content"],
+    "properties": {
+      "path": { "type": "string" },
+      "content": { "type": "string" }
+    }
+  },
+  "mustNotCallTools": ["exec"]
+}

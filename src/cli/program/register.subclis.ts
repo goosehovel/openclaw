@@ -270,6 +270,15 @@ const entries: SubCliEntry[] = [
     },
   },
   {
+    name: "tools",
+    description: "Inspect and analyze tool configuration, schemas, and token usage",
+    hasSubcommands: true,
+    register: async (program) => {
+      const mod = await import("../tools-cli.js");
+      mod.registerToolsCli(program);
+    },
+  },
+  {
     name: "update",
     description: "Update OpenClaw and inspect update channel status",
     hasSubcommands: true,

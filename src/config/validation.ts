@@ -433,6 +433,38 @@ function validateConfigObjectWithPluginsBase(
     }
   }
 
+  // Validate named tool profiles: warn about profiles that may be effectively empty
+  const namedProfiles = config.tools?.namedProfiles;
+  if (namedProfiles && config.tools?.byProvider) {
+    for (const [profileName, profile] of Object.entries(namedProfiles)) {
+      const headlineTools = profile.headlineTools ?? [];
+      if (headlineTools.length === 0) continue;
+
+      for (const [providerKey, providerPolicy] of Object.entries(config.tools.byProvider)) {
+        if (!providerPolicy) continue;
+        const providerDeny = providerPolicy.deny ?? [];
+        const providerAllow = providerPolicy.allow ?? [];
+        const hasRestriction = providerDeny.length > 0 || providerAllow.length > 0;
+        if (!hasRestriction) continue;
+
+        const denySet = new Set(providerDeny);
+        const allowSet = providerAllow.length > 0 ? new Set(providerAllow) : null;
+        const removedHeadline = headlineTools.filter(
+          (t) => denySet.has(t) || (allowSet && !allowSet.has(t)),
+        );
+        if (removedHeadline.length > 0) {
+          warnings.push({
+            path: `tools.namedProfiles.${profileName}`,
+            message:
+              `Named profile "${profileName}" headline tools [${removedHeadline.join(", ")}] ` +
+              `are restricted by tools.byProvider.${providerKey}. ` +
+              `This profile may appear effectively empty for provider "${providerKey}".`,
+          });
+        }
+      }
+    }
+  }
+
   if (issues.length > 0) {
     return { ok: false, issues, warnings };
   }

@@ -1,0 +1,14 @@
+{
+  "id": "exec-background-process",
+  "description": "Start a background process",
+  "userMessage": "Start a dev server with npm run dev in the background",
+  "toolGroup": "group:runtime",
+  "allowedToolNames": ["exec", "process"],
+  "expectedArgsSchema": {
+    "type": "object",
+    "required": ["command"],
+    "properties": {
+      "command": { "type": "string" }
+    }
+  }
+}

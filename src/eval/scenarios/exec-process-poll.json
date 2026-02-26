@@ -1,0 +1,13 @@
+{
+  "id": "exec-process-poll",
+  "description": "Poll a running background process",
+  "userMessage": "Check on the background build process",
+  "toolGroup": "group:runtime",
+  "allowedToolNames": ["process"],
+  "expectedArgsSchema": {
+    "type": "object",
+    "properties": {
+      "action": { "type": "string" }
+    }
+  }
+}

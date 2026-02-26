@@ -1,0 +1,14 @@
+{
+  "id": "fs-edit-line",
+  "description": "Edit a specific line in a file",
+  "userMessage": "Replace the word 'foo' with 'bar' in src/main.ts",
+  "toolGroup": "group:fs",
+  "allowedToolNames": ["edit", "apply_patch"],
+  "expectedArgsSchema": {
+    "type": "object",
+    "properties": {
+      "path": { "type": "string" }
+    }
+  },
+  "mustNotCallTools": ["exec"]
+}

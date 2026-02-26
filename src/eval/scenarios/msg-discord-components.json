@@ -1,0 +1,14 @@
+{
+  "id": "msg-discord-components",
+  "description": "Send a Discord message with interactive components",
+  "userMessage": "Send a Discord message with a button that says Click Me",
+  "toolGroup": "group:messaging",
+  "allowedToolNames": ["message"],
+  "expectedArgsSchema": {
+    "type": "object",
+    "required": ["action"],
+    "properties": {
+      "action": { "type": "string", "const": "send" }
+    }
+  }
+}

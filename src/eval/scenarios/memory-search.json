@@ -1,0 +1,15 @@
+{
+  "id": "memory-search",
+  "description": "Search memory for relevant information",
+  "userMessage": "Search your memory for my API key preferences",
+  "toolGroup": "group:memory",
+  "allowedToolNames": ["memory_search"],
+  "expectedArgsSchema": {
+    "type": "object",
+    "required": ["query"],
+    "properties": {
+      "query": { "type": "string" }
+    }
+  },
+  "mustNotCallTools": ["exec", "read", "grep"]
+}

@@ -1,0 +1,14 @@
+{
+  "id": "cron-schedule-reminder",
+  "description": "Schedule a reminder via cron",
+  "userMessage": "Remind me to check the deployment in 30 minutes",
+  "toolGroup": "group:openclaw",
+  "allowedToolNames": ["cron"],
+  "expectedArgsSchema": {
+    "type": "object",
+    "properties": {
+      "action": { "type": "string" }
+    }
+  },
+  "mustNotCallTools": ["exec"]
+}

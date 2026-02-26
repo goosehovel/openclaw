@@ -1,0 +1,13 @@
+{
+  "id": "session-history",
+  "description": "Fetch conversation history from a session",
+  "userMessage": "Get the last 10 messages from the main session",
+  "toolGroup": "group:sessions",
+  "allowedToolNames": ["sessions_history"],
+  "expectedArgsSchema": {
+    "type": "object",
+    "properties": {
+      "sessionKey": { "type": "string" }
+    }
+  }
+}

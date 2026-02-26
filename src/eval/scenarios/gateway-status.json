@@ -1,0 +1,12 @@
+{
+  "id": "gateway-status",
+  "description": "Check gateway status",
+  "userMessage": "What is the current status of the gateway?",
+  "toolGroup": "group:openclaw",
+  "allowedToolNames": ["gateway", "session_status"],
+  "expectedArgsSchema": {
+    "type": "object",
+    "properties": {}
+  },
+  "mustNotCallTools": ["exec"]
+}

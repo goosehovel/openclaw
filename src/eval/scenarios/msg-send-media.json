@@ -1,0 +1,14 @@
+{
+  "id": "msg-send-media",
+  "description": "Send a message with media attachment",
+  "userMessage": "Send the screenshot at /tmp/screenshot.png to the chat",
+  "toolGroup": "group:messaging",
+  "allowedToolNames": ["message"],
+  "expectedArgsSchema": {
+    "type": "object",
+    "required": ["action"],
+    "properties": {
+      "action": { "type": "string", "const": "send" }
+    }
+  }
+}

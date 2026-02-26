@@ -230,6 +230,8 @@ export function buildAgentSystemPrompt(params: {
     channel: string;
   };
   memoryCitationsMode?: MemoryCitationsMode;
+  /** Control tool listing in the system prompt: "full" (default), "names" (no descriptions), "off" (omit list). */
+  toolListingMode?: "full" | "names" | "off";
 }) {
   const coreToolSummaries: Record<string, string> = {
     read: "Read file contents",
@@ -314,16 +316,28 @@ export function buildAgentSystemPrompt(params: {
   const extraTools = Array.from(
     new Set(normalizedTools.filter((tool) => !toolOrder.includes(tool))),
   );
+  const listingMode = params.toolListingMode ?? "full";
   const enabledTools = toolOrder.filter((tool) => availableTools.has(tool));
-  const toolLines = enabledTools.map((tool) => {
-    const summary = coreToolSummaries[tool] ?? externalToolSummaries.get(tool);
-    const name = resolveToolName(tool);
-    return summary ? `- ${name}: ${summary}` : `- ${name}`;
-  });
-  for (const tool of extraTools.toSorted()) {
-    const summary = coreToolSummaries[tool] ?? externalToolSummaries.get(tool);
-    const name = resolveToolName(tool);
-    toolLines.push(summary ? `- ${name}: ${summary}` : `- ${name}`);
+  const toolLines: string[] = [];
+  if (listingMode !== "off") {
+    for (const tool of enabledTools) {
+      const summary = coreToolSummaries[tool] ?? externalToolSummaries.get(tool);
+      const name = resolveToolName(tool);
+      if (listingMode === "names") {
+        toolLines.push(`- ${name}`);
+      } else {
+        toolLines.push(summary ? `- ${name}: ${summary}` : `- ${name}`);
+      }
+    }
+    for (const tool of extraTools.toSorted()) {
+      const summary = coreToolSummaries[tool] ?? externalToolSummaries.get(tool);
+      const name = resolveToolName(tool);
+      if (listingMode === "names") {
+        toolLines.push(`- ${name}`);
+      } else {
+        toolLines.push(summary ? `- ${name}: ${summary}` : `- ${name}`);
+      }
+    }
   }
 
   const hasGateway = availableTools.has("gateway");
@@ -415,7 +429,9 @@ export function buildAgentSystemPrompt(params: {
     "Tool names are case-sensitive. Call tools exactly as listed.",
     toolLines.length > 0
       ? toolLines.join("\n")
-      : [
+      : listingMode === "off"
+        ? "(Tool schemas are provided via the API; tool list omitted from prompt.)"
+        : [
           "Pi lists the standard tools above. This runtime enables:",
           "- grep: search file contents for patterns",
           "- find: find files by glob pattern",

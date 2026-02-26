@@ -1,0 +1,15 @@
+{
+  "id": "exec-install-package",
+  "description": "Install a package via package manager",
+  "userMessage": "Install the lodash package",
+  "toolGroup": "group:runtime",
+  "allowedToolNames": ["exec"],
+  "expectedArgsSchema": {
+    "type": "object",
+    "required": ["command"],
+    "properties": {
+      "command": { "type": "string" }
+    }
+  },
+  "mustNotCallTools": ["read", "write"]
+}

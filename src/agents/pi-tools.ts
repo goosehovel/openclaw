@@ -216,6 +216,8 @@ export function createOpenClawCodingTools(options?: {
   disableMessageTool?: boolean;
   /** Whether the sender is an owner (required for owner-only tools). */
   senderIsOwner?: boolean;
+  /** Session-scoped tool policy override (can only narrow, applied after sandbox/subagent). */
+  sessionToolPolicy?: { allow?: string[]; deny?: string[] };
 }): AnyAgentTool[] {
   const execToolName = "exec";
   const sandbox = options?.sandbox?.enabled ? options.sandbox : undefined;
@@ -250,8 +252,9 @@ export function createOpenClawCodingTools(options?: {
     senderUsername: options?.senderUsername,
     senderE164: options?.senderE164,
   });
-  const profilePolicy = resolveToolProfilePolicy(profile);
-  const providerProfilePolicy = resolveToolProfilePolicy(providerProfile);
+  const namedProfiles = options?.config?.tools?.namedProfiles;
+  const profilePolicy = resolveToolProfilePolicy(profile, namedProfiles);
+  const providerProfilePolicy = resolveToolProfilePolicy(providerProfile, namedProfiles);
 
   const profilePolicyWithAlsoAllow = mergeAlsoAllowPolicy(profilePolicy, profileAlsoAllow);
   const providerProfilePolicyWithAlsoAllow = mergeAlsoAllowPolicy(
@@ -502,6 +505,9 @@ export function createOpenClawCodingTools(options?: {
       }),
       { policy: sandbox?.tools, label: "sandbox tools.allow" },
       { policy: subagentPolicy, label: "subagent tools.allow" },
+      ...(options?.sessionToolPolicy
+        ? [{ policy: options.sessionToolPolicy, label: "session override" }]
+        : []),
     ],
   });
   // Always normalize tool JSON Schemas before handing them to pi-agent/pi-ai.

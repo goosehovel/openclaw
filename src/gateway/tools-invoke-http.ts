@@ -8,6 +8,7 @@ import {
 import {
   applyToolPolicyPipeline,
   buildDefaultToolPolicyPipelineSteps,
+  type ToolPolicyPipelineStep,
 } from "../agents/tool-policy-pipeline.js";
 import {
   collectExplicitAllowlist,
@@ -17,6 +18,8 @@ import {
 import { ToolInputError } from "../agents/tools/common.js";
 import { loadConfig } from "../config/config.js";
 import { resolveMainSessionKey } from "../config/sessions.js";
+import { loadSessionStore } from "../config/sessions/store.js";
+import { resolveStorePath } from "../config/sessions/paths.js";
 import { logWarn } from "../logger.js";
 import { isTestDefaultMemorySlotDisabled } from "../plugins/config-state.js";
 import { getPluginToolMeta } from "../plugins/tools.js";
@@ -36,6 +39,24 @@ import { getBearerToken, getHeader } from "./http-utils.js";
 
 const DEFAULT_BODY_BYTES = 2 * 1024 * 1024;
 const MEMORY_TOOL_NAMES = new Set(["memory_search", "memory_get"]);
+
+function resolveSessionToolPolicyStep(
+  cfg: ReturnType<typeof loadConfig>,
+  sessionKey: string,
+): ToolPolicyPipelineStep[] {
+  try {
+    const storePath = resolveStorePath(cfg.session?.store);
+    const store = loadSessionStore(storePath);
+    const entry = store[sessionKey];
+    if (!entry) return [];
+    const allow = entry.toolsAllowOverride;
+    const deny = entry.toolsDenyOverride;
+    if (!allow && !deny) return [];
+    return [{ policy: { allow, deny }, label: "session override" }];
+  } catch {
+    return [];
+  }
+}
 
 type ToolsInvokeBody = {
   tool?: unknown;
@@ -227,8 +248,9 @@ export async function handleToolsInvokeHttpRequest(
     profileAlsoAllow,
     providerProfileAlsoAllow,
   } = resolveEffectiveToolPolicy({ config: cfg, sessionKey });
-  const profilePolicy = resolveToolProfilePolicy(profile);
-  const providerProfilePolicy = resolveToolProfilePolicy(providerProfile);
+  const namedProfiles = cfg.tools?.namedProfiles;
+  const profilePolicy = resolveToolProfilePolicy(profile, namedProfiles);
+  const providerProfilePolicy = resolveToolProfilePolicy(providerProfile, namedProfiles);
 
   const profilePolicyWithAlsoAllow = mergeAlsoAllowPolicy(profilePolicy, profileAlsoAllow);
   const providerProfilePolicyWithAlsoAllow = mergeAlsoAllowPolicy(
@@ -285,6 +307,7 @@ export async function handleToolsInvokeHttpRequest(
         agentId,
       }),
       { policy: subagentPolicy, label: "subagent tools.allow" },
+      ...resolveSessionToolPolicyStep(cfg, sessionKey),
     ],
   });
 

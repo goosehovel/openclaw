@@ -417,6 +417,17 @@ export type MemorySearchConfig = {
   };
 };
 
+export type PromptListingMode = "full" | "names" | "off";
+
+export type NamedToolProfile = {
+  /** Built-in profile ID or another named profile to inherit from. */
+  extends?: string;
+  allow?: string[];
+  deny?: string[];
+  /** Tools that define this profile's identity (used for "profile appears empty" warnings). */
+  headlineTools?: string[];
+};
+
 export type ToolsConfig = {
   /** Base tool profile applied before allow/deny lists. */
   profile?: ToolProfileId;
@@ -426,6 +437,10 @@ export type ToolsConfig = {
   deny?: string[];
   /** Optional tool policy overrides keyed by provider id or "provider/model". */
   byProvider?: Record<string, ToolPolicyConfig>;
+  /** Named tool profiles with inheritance. Keys are profile names. */
+  namedProfiles?: Record<string, NamedToolProfile>;
+  /** Control how the tool list appears in the system prompt (default: "full"). */
+  promptListing?: PromptListingMode;
   web?: {
     search?: {
       /** Enable web search tool (default: true when API key is present). */

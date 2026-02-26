@@ -1,0 +1,14 @@
+{
+  "id": "msg-fetch-history",
+  "description": "Fetch message history from a channel",
+  "userMessage": "Fetch the recent messages from the Telegram chat",
+  "toolGroup": "group:messaging",
+  "allowedToolNames": ["message"],
+  "expectedArgsSchema": {
+    "type": "object",
+    "required": ["action"],
+    "properties": {
+      "action": { "type": "string", "const": "fetch" }
+    }
+  }
+}
